@@ -6,7 +6,7 @@
 
 ## 事实摘要
 
-- **产品**：TypeScript + React 19 + vinext 的全栈站点脚手架（`app/`、`worker/`、可选 D1）。
+- **产品**：TypeScript + React 19 + vinext 全栈脚手架；仓库内演示页为 **PlayScout** 游戏攻略 MVP（可换皮）。
 - **适合**：要快速起 Cloudflare / vinext 站点、需要本地绑定模拟与鉴权头约定的团队。
 - **交付**：可运行 starter、示例页、`examples/d1/`、测试与文档（`doc/`）。
 - **不做**：不是开箱即用的业务 SaaS；不含第三方付费内容爬取。
@@ -32,6 +32,20 @@ npm test
 ```
 
 本 starter **不依赖** `wrangler.jsonc`；可选绑定见 `.openai/hosting.json`。
+
+
+## 环境变量
+
+复制 `.env.example` → `.env`（已 gitignore；`.env.example` 可提交）。本 starter **默认无需 API Key**。Cloudflare D1/R2 绑定见 `.openai/hosting.json`。
+
+## 冒烟自检
+
+```bash
+bash scripts/smoke.sh
+# 或 npm run smoke
+```
+
+无 `node_modules` 时会先 `npm install`，再执行 `npm test`（含 build + HTML 渲染断言）。
 
 ## 定制合作（可报价）
 
