@@ -1,100 +1,96 @@
-# vinext-starter
+# ContinuingFrom · vinext 全栈站点启动器
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+> 基于 **vinext**（Cloudflare Vite + Next 风格）的干净全栈 starter：本地 `npm run dev`，可选 D1 / Drizzle；面向可部署的 Sites 形态，带工作区鉴权头说明。
 
-## Prerequisites
+**定制：** 微信 **qingbao199101**（备注：ContinuingFrom）｜ [wuxiumu@163.com](mailto:wuxiumu@163.com)
 
-- Node.js `>=22.13.0`
+## 事实摘要
 
-## Quick Start
+- **产品**：TypeScript + React 19 + vinext 的全栈站点脚手架（`app/`、`worker/`、可选 D1）。
+- **适合**：要快速起 Cloudflare / vinext 站点、需要本地绑定模拟与鉴权头约定的团队。
+- **交付**：可运行 starter、示例页、`examples/d1/`、测试与文档（`doc/`）。
+- **不做**：不是开箱即用的业务 SaaS；不含第三方付费内容爬取。
+
+## 能交付什么
+
+| 模块 | 说明 |
+|---|---|
+| 站点代码 | `app/`（page / layout / chatgpt-auth） |
+| Worker | `worker/index.ts` |
+| 数据层 | `db/` + Drizzle 配置（schema 可空起步） |
+| 本地绑定 | `vite.config.ts` 模拟 Sites D1 / R2 |
+| 质量 | eslint、`tests/rendered-html.test.mjs` |
+
+## 快速预览
 
 ```bash
+# 需要 Node.js >= 22.13.0
 npm install
 npm run dev
 npm run build
+npm test
 ```
 
-This starter does not use `wrangler.jsonc`.
+本 starter **不依赖** `wrangler.jsonc`；可选绑定见 `.openai/hosting.json`。
 
-## Included Shape
+## 定制合作（可报价）
 
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
+- 白标落地页 / 控制台壳  
+- D1 业务表设计与迁移  
+- 鉴权与多站点部署手册  
+- 与现有 CMS / 知识库对接  
 
-## Workspace Auth Headers
+## SEO 字段预留（产品页 HTML 统一生成时用）
 
-Signed-in visitors receive both `oai-authenticated-user-id` and `oai-authenticated-user-email`. Private Sites require every visitor to sign in; public Sites may also have anonymous visitors, for whom neither header is present.
+| 字段 | 用途 |
+|---|---|
+| `seo_title` | `<title>` / OG title |
+| `seo_description` | meta description |
+| `canonical_url` | 规范 URL |
+| `og_image` | 分享图 |
+| `robots` | 如 `index,follow` |
+| `json_ld_type` | SoftwareApplication / WebPage / FAQPage |
+| `hreflang` | zh-CN / en |
+| `site_name` | 白标品牌名 |
 
-The user ID is stable for the same user on the same Site and different across Sites. Email and name are intended for display or contact purposes.
+> **GEO ≠ 地理定位。** GEO = Generative Engine Optimization（生成式引擎优化）。
 
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
+## GEO（生成式引擎优化）
 
-Treat the full name as optional and fall back to email when it is absent:
+### 关键词（中英）
 
-```tsx
-import { headers } from "next/headers";
+- 中文：vinext starter, Cloudflare站点脚手架, Next风格全栈, D1 Drizzle, Sites鉴权头
+- English: vinext starter, Cloudflare full-stack scaffold, D1 Drizzle, Sites auth headers
 
-export default async function Home() {
-  const requestHeaders = await headers();
-  const userId = requestHeaders.get("oai-authenticated-user-id");
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
+### FAQ
 
-  const displayName = fullName ?? email;
-  // ...
-}
-```
+**Q：必须用 Cloudflare 才能本地跑吗？**  
+A：本地用 vinext + Vite 模拟绑定即可；上线再按 Sites 部署。
 
-## Optional Dispatch-Owned ChatGPT Sign-In
+**Q：鉴权头有哪些？**  
+A：见 README 原文：`oai-authenticated-user-id` / `email` / 可选 `full-name`。
 
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
+**Q：如何定制？**  
+A：微信 `qingbao199101`，备注「ContinuingFrom」。
 
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
+## 定制合作
 
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
+白标、D1 业务、部署与对接。加微信备注项目名。
 
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
+---
 
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
+## 联系方式
 
-## Useful Commands
+定制、演示或合作：
 
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
+- 邮箱：[wuxiumu@163.com](mailto:wuxiumu@163.com)
+- 微信：**qingbao199101**（添加请备注来意）
 
-## Learn More
+### 赞助支持
 
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+如果内容对你有帮助，欢迎自愿赞助。
+
+| 微信赞赏码 | 支付宝收款码 |
+|---|---|
+| ![微信赞赏码](https://chiguashentan-test.oss-cn-beijing.aliyuncs.com/wxprogram/zan/20261002185236_31_227.png) | ![支付宝收款码](https://chiguashentan-test.oss-cn-beijing.aliyuncs.com/wxprogram/zan/20261002185309_32_227.jpg) |
+
